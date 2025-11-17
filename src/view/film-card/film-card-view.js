@@ -1,32 +1,37 @@
-import { createElement } from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 import { createCardInfoTemplate } from './film-card-info-template.js';
 import { createFilmCardControlsTemplate } from './film-card-controls-template.js';
 
-const createNewPopupTemplate = () =>
+const createNewPopupTemplate = ({filmInfo, comments}) =>
   `
     <article class="film-card">
 
-      ${createCardInfoTemplate()}
+      ${createCardInfoTemplate(filmInfo, comments.length)}
 
       ${createFilmCardControlsTemplate()}
 
     </article>
   `;
 
-export default class FilmCardView {
-  getTemplate() {
-    return createNewPopupTemplate();
+export default class FilmCardView extends AbstractView {
+  #film = null;
+
+  constructor(film) {
+    super();
+    this.#film = film;
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  get template() {
+    return createNewPopupTemplate(this.#film);
   }
 
-  removeElement() {
-    this.element = null;
-  }
+  setCardClickHandler = (callback) => {
+    this._callback.cardClick = callback;
+    this.element.querySelector('a').addEventListener('click', this.#cardClickHandler);
+  };
+
+  #cardClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.cardClick();
+  };
 }

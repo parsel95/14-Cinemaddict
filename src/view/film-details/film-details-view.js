@@ -1,10 +1,10 @@
-import {createElement} from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 import {createFilmDetailsInfoTemplate} from './film-details-info-template.js';
 import {createFilmDetailsCommentsTemplate} from './film-details-comments-template.js';
 import {createFilmDetailsFormTemplate} from './film-details-form-template.js';
 import {createDeatailsControlsTemplate} from './film-details-controls-template.js';
 
-const createFilmDetailsTemplate = () =>
+const createFilmDetailsTemplate = ({filmInfo}, comments) =>
   `
     <section class="film-details">
       <div class="film-details__inner">
@@ -13,7 +13,7 @@ const createFilmDetailsTemplate = () =>
             <button class="film-details__close-btn" type="button">close</button>
           </div>
 
-          ${createFilmDetailsInfoTemplate()}
+          ${createFilmDetailsInfoTemplate(filmInfo)}
 
           ${createDeatailsControlsTemplate()}
 
@@ -21,9 +21,9 @@ const createFilmDetailsTemplate = () =>
 
         <div class="film-details__bottom-container">
           <section class="film-details__comments-wrap">
-            <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">4</span></h3>
+            <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
-            ${createFilmDetailsCommentsTemplate()}
+            ${createFilmDetailsCommentsTemplate(comments)}
 
             ${createFilmDetailsFormTemplate()}
 
@@ -33,20 +33,27 @@ const createFilmDetailsTemplate = () =>
     </section>
   `;
 
-export default class FilmDetailsView {
-  getTemplate() {
-    return createFilmDetailsTemplate();
+export default class FilmDetailsView extends AbstractView {
+  #film = null;
+  #comments = null;
+
+  constructor(film, comments) {
+    super();
+    this.#film = film;
+    this.#comments = comments;
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  get template() {
+    return createFilmDetailsTemplate(this.#film, this.#comments);
   }
 
-  removeElement() {
-    this.element = null;
-  }
+  setCloseBtnClickHandler = (callback) => {
+    this._callback.closeBtnClick = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeBtnClickHandler);
+  };
+
+  #closeBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.closeBtnClick();
+  };
 }
