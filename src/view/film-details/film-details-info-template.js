@@ -1,4 +1,4 @@
-import { formatMinutesToTime, formatStringToDate } from '../../utils/date.js';
+import { formatMinutesToTime, formatStringToDate } from '../../utils/film.js';
 
 const generateGenreList = (genres) =>
   genres.map((genreItem) =>

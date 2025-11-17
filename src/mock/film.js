@@ -1,17 +1,26 @@
-import { getRandomInteger, getRandomValue } from '../utils/utils.js';
+import { getRandomInteger, getRandomValue } from '../utils/common.js';
 import {
   SCRIPTWRITERS_COUNT, ACTORS_COUNT, MAX_COMMENTS_ON_FILM,
-  Raiting, AgeRating, YearsDuration, Runtime, GenreCount,
+  Raiting, AgeRating, YearsDuration, DaysDuration, DateType, Runtime, GenreCount,
   titles, names, surnames, posters, countries, genres, description
 } from './const.js';
 import { FILM_COUNT } from '../const.js';
 
-const getDate = () => {
+const getDate = (type) => {
   const date = new Date();
 
-  date.setFullYear(
-    date.getFullYear() - getRandomInteger(YearsDuration.MIN, YearsDuration.MAX)
-  );
+  switch (type) {
+    case DateType.FILM_INFO:
+      date.setFullYear(
+        date.getFullYear() - getRandomInteger(YearsDuration.MIN, YearsDuration.MAX)
+      );
+      break;
+    case DateType.USER_DETAILS:
+      date.setDate(
+        date.getDate() - getRandomInteger(DaysDuration.MIN, DaysDuration.MAX)
+      );
+      break;
+  }
 
   return date.toISOString();
 };
@@ -26,21 +35,20 @@ const generateFilm = () => ({
   scriptwriters: Array.from({ length: SCRIPTWRITERS_COUNT }, () => `${getRandomValue(names)} ${getRandomValue(surnames)}`),
   actors: Array.from({ length: ACTORS_COUNT }, () => `${getRandomValue(names)} ${getRandomValue(surnames)}`),
   release: {
-    date: getDate(),
-    releaseCountry: getRandomValue(countries),
+    date: getDate(DateType.FILM_INFO),
+    releaseСountry: getRandomValue(countries)
   },
   runtime: getRandomInteger(Runtime.MIN, Runtime.MAX),
   genre: Array.from({ length: getRandomInteger(GenreCount.MIN, GenreCount.MAX) }, () => getRandomValue(genres)),
   description: getRandomValue(description),
-  inWatchlist: Boolean(getRandomInteger(0, 1)),
-  isWatched: Boolean(getRandomInteger(0, 1)),
-  isFavorite: Boolean(getRandomInteger(0, 1)),
 });
 
 export const generateFilms = () => {
   const films = Array.from({ length: FILM_COUNT }, generateFilm);
 
   let totalCommentsCount = 0;
+
+  const getWatcingDate = () => getDate(DateType.USER_DETAILS);
 
   return films.map((film, index) => {
     const hasComments = getRandomInteger(0, 1);
@@ -51,6 +59,8 @@ export const generateFilms = () => {
 
     totalCommentsCount += filmCommentsCount;
 
+    const alreadyWatched = Boolean(getRandomInteger(0, 1));
+
     return {
       id: String(index + 1),
       comments: (hasComments)
@@ -60,6 +70,12 @@ export const generateFilms = () => {
         )
         : [],
       filmInfo: film,
+      UserDetails: {
+        watchlist: Boolean(getRandomInteger(0, 1)),
+        alreadyWatched,
+        watchingDate: (alreadyWatched) ? getWatcingDate() : null,
+        favorite: Boolean(getRandomInteger(0, 1)),
+      },
     };
   });
 };
