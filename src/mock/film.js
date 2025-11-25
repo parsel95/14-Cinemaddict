@@ -70,7 +70,7 @@ export const generateFilms = () => {
         )
         : [],
       filmInfo: film,
-      UserDetails: {
+      userDetails: {
         watchlist: Boolean(getRandomInteger(0, 1)),
         alreadyWatched,
         watchingDate: (alreadyWatched) ? getWatcingDate() : null,

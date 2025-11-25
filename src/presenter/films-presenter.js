@@ -1,17 +1,21 @@
 import SortView from '../view/sort-view.js';
 import FilmsView from '../view/film-list/films-view.js';
 import FilmListView from '../view/film-list/film-list-view.js';
-import FilmListEmptyView from '../view/film-list/film-List-empty-view.js';
+import FilmListEmptyView from '../view/film-list/film-list-empty-view.js';
 import FilmListContainerView from '../view/film-list/film-list-container-view.js';
 import FilmButtonMoreView from '../view/film-button-more-view.js';
-import FilmCardView from '../view/film-card/film-card-view.js';
 import FilmDetailsView from '../view/film-details/film-details-view.js';
+import FilmPresenter from './film-presenter.js';
+
+import FilmCardView from '../view/film-card/film-card-view.js';
 
 import { render, remove } from '../framework/render.js';
 import { FILM_COUNT_PER_STEP } from '../const.js';
 
 export default class FilmsPresenter {
+  #filmComponent = new FilmPresenter();
   #sortComponent = new SortView();
+  #filmListEmptyViewComponent = new FilmListEmptyView();
   #filmsComponent = new FilmsView();
   #filmListComponent = new FilmListView();
   #filmListContainerComponent = new FilmListContainerView();
@@ -38,6 +42,22 @@ export default class FilmsPresenter {
     this.#renderFilmBoard();
   };
 
+  #renderSort = () => {
+    render(this.#sortComponent, this.#container);
+  };
+
+  #renderFilmListContainer = () => {
+    render(this.#filmsComponent, this.#container);
+    render(this.#filmListComponent, this.#filmsComponent.element);
+    render(this.#filmListContainerComponent, this.#filmListComponent.element);
+  };
+
+  #renderFilms = (from, to) => {
+    this.#films
+      .slice(from, to)
+      .forEach((film) => this.#renderFilm(film, this.#filmListContainerComponent));
+  };
+
   #renderFilm = (film, container) => {
     const filmCardComponent = new FilmCardView(film);
 
@@ -46,7 +66,27 @@ export default class FilmsPresenter {
       document.addEventListener('keydown', this.#onEscKeyDown);
     });
 
-    render (filmCardComponent, container.element);
+    render(filmCardComponent, container.element);
+  };
+
+  #renderFilmList = () => {
+    this.#renderFilmListContainer();
+
+    this.#renderFilms(0, Math.min(this.#films.length, FILM_COUNT_PER_STEP));
+
+    if (this.#films.length > FILM_COUNT_PER_STEP) {
+      this.#renderFilmButtonMore();
+    }
+  };
+
+  #renderFilmListEmptyView = () => {
+    render(this.#filmListEmptyViewComponent, this.#container);
+  };
+
+  #renderFilmButtonMore = () => {
+    render(this.#filmButtonMoreComponent, this.#filmListComponent.element);
+
+    this.#filmButtonMoreComponent.setButtonClickHandler(() => this.#filmButtonMoreClickHandler());
   };
 
   #renderFilmDetails = (film) => {
@@ -82,11 +122,10 @@ export default class FilmsPresenter {
   };
 
   #filmButtonMoreClickHandler = () => {
-    this.#films
-      .slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => {
-        this.#renderFilm(film, this.#filmListContainerComponent);
-      });
+    this.#renderFilms(
+      this.#renderedFilmCount,
+      this.#renderedFilmCount + FILM_COUNT_PER_STEP
+    );
 
     this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
@@ -96,26 +135,13 @@ export default class FilmsPresenter {
     }
   };
 
-  #renderFilmBoard() {
+  #renderFilmBoard = () => {
     if (this.#films.length === 0) {
-      render(new FilmListEmptyView(), this.#container);
+      this.#renderFilmListEmptyView();
       return;
     }
 
-    render(this.#sortComponent, this.#container);
-    render(this.#filmsComponent, this.#container);
-    render(this.#filmListComponent, this.#filmsComponent.element);
-    render(this.#filmListContainerComponent, this.#filmListComponent.element);
-
-    this.#films
-      .slice(0, Math.min(this.#films.length, FILM_COUNT_PER_STEP))
-      .forEach((film) =>
-        this.#renderFilm(film, this.#filmListContainerComponent)
-      );
-
-    if (this.#films.length > FILM_COUNT_PER_STEP) {
-      render(this.#filmButtonMoreComponent, this.#filmListComponent.element);
-      this.#filmButtonMoreComponent.setButtonClickHandler(() => this.#filmButtonMoreClickHandler());
-    }
-  }
+    this.#renderSort();
+    this.#renderFilmList();
+  };
 }
