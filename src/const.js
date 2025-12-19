@@ -25,6 +25,12 @@ const UserStatusTitle = {
   MOVIE_BUFF: 'Movie Buff',
 };
 
+const SortType = {
+  DEFAULT: 'default',
+  DATE: 'date',
+  RATING: 'rating',
+};
+
 export {
   FILM_COUNT,
   FILM_COUNT_PER_STEP,
@@ -32,5 +38,6 @@ export {
   EMOTIONS,
   FILTER_TYPE_ALL_NAME,
   UserStatusValue,
-  UserStatusTitle
+  UserStatusTitle,
+  SortType
 };

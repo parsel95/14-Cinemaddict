@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 /**
  * Преобразует строку с датой в год
  * @param {string} date - Строка с датой в формате ISO или другом поддерживаемом формате
@@ -50,9 +52,62 @@ const formatStringToDate = (date) =>
 const formatStringToDateWithTime = (date) =>
   new Date(date).toLocaleString('en-GB');
 
+/** Вспомогательная функция для сортировки фильмов по дате с учётом возможных null значений
+ * @param {string|null} dateA - Дата первого фильма в формате ISO или null
+ * @param {string|null} dateB - Дата второго фильма в формате ISO или null
+ * @returns {number|null} Вес для сортировки или null, если оба значения не null
+ *
+ * @example
+ * getWeightForNullDate(null, '2023-12-18T10:30:00.000Z'); // 1
+ * getWeightForNullDate('1995-05-15', null); // -1
+ * getWeightForNullDate(null, null); // 0
+ * getWeightForNullDate('2023-12-18T10:30:00.000Z', '1995-05-15'); // null
+ */
+const getWeightForNullDate = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return 0;
+  }
+
+  if (dateA === null) {
+    return 1;
+  }
+
+  if (dateB === null) {
+    return -1;
+  }
+
+  return null;
+};
+
+/** Сортирует фильмы по дате выпуска
+ * @param {Object} filmA - Первый фильм для сравнения
+ * @param {Object} filmB - Второй фильм для сравнения
+ * @returns {number} Результат сравнения для сортировки
+ *
+ * @example
+ * sortFilmsByDate(filmA, filmB); // возвращает положительное число, отрицательное число или 0
+ */
+const sortFilmsByDate = (filmA, filmB) => {
+  const weight = getWeightForNullDate(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
+
+  return weight ?? dayjs(filmB.filmInfo.release.date).diff(dayjs(filmA.filmInfo.release.date));
+};
+
+/** Сортирует фильмы по рейтингу
+ * @param {Object} filmA - Первый фильм для сравнения
+ * @param {Object} filmB - Второй фильм для сравнения
+ * @returns {number} Результат сравнения для сортировки
+ *
+ * @example
+ * sortFilmsByRating(filmA, filmB); // возвращает положительное число, отрицательное число или 0
+ */
+const sortFilmsByRating = (filmA, filmB) => filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
+
 export {
   formatStringToYear,
   formatMinutesToTime,
   formatStringToDate,
-  formatStringToDateWithTime
+  formatStringToDateWithTime,
+  sortFilmsByDate,
+  sortFilmsByRating
 };

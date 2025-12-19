@@ -4,7 +4,7 @@ import {createFilmDetailsCommentsTemplate} from './film-details-comments-templat
 import {createFilmDetailsFormTemplate} from './film-details-form-template.js';
 import {createDeatailsControlsTemplate} from './film-details-controls-template.js';
 
-const createFilmDetailsTemplate = ({filmInfo}, comments) =>
+const createFilmDetailsTemplate = ({filmInfo, userDetails}, comments) =>
   `
     <section class="film-details">
       <div class="film-details__inner">
@@ -15,7 +15,7 @@ const createFilmDetailsTemplate = ({filmInfo}, comments) =>
 
           ${createFilmDetailsInfoTemplate(filmInfo)}
 
-          ${createDeatailsControlsTemplate()}
+          ${createDeatailsControlsTemplate(userDetails)}
 
         </div>
 
@@ -47,13 +47,49 @@ export default class FilmDetailsView extends AbstractView {
     return createFilmDetailsTemplate(this.#film, this.#comments);
   }
 
-  setCloseBtnClickHandler = (callback) => {
+  setCloseBtnClickHandler(callback) {
     this._callback.closeBtnClick = callback;
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeBtnClickHandler);
-  };
+  }
+
+  setWatchlistBtnClickHandler(callback) {
+    this._callback.watchlistBtnClick = callback;
+    this.element
+      .querySelector('.film-details__control-button--watchlist')
+      .addEventListener('click', this.#watchlistBtnClickHandler);
+  }
+
+  setWatchedBtnClickHandler(callback) {
+    this._callback.watchedBtnClick = callback;
+    this.element
+      .querySelector('.film-details__control-button--watched')
+      .addEventListener('click', this.#watchedBtnClickHandler);
+  }
+
+  setFavoriteBtnClickHandler(callback) {
+    this._callback.favoriteBtnClick = callback;
+    this.element
+      .querySelector('.film-details__control-button--favorite')
+      .addEventListener('click', this.#favoriteBtnClickHandler);
+  }
 
   #closeBtnClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.closeBtnClick();
+  };
+
+  #watchlistBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.watchlistBtnClick();
+  };
+
+  #watchedBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.watchedBtnClick();
+  };
+
+  #favoriteBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.favoriteBtnClick();
   };
 }

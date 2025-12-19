@@ -26,8 +26,33 @@ const getRandomInteger = (a = 0, b = 1) => {
 const getRandomValue = (items) =>
   items[getRandomInteger(0, items.length - 1)];
 
+/** Обновляет элемент в массиве по его id
+ * @param {Array} items - Массив элементов
+ * @param {Object} update - Обновлённый элемент с тем же id
+ * @returns {Array} Новый массив с обновлённым элементом
+ *
+ * @example
+ * const items = [{id: 1, name: 'Item 1'}, {id: 2, name: 'Item 2'}];
+ * const updatedItem = {id: 2, name: 'Updated Item 2'};
+ * const newItems = updateItem(items, updatedItem);
+ * // newItems будет равен [{id: 1, name: 'Item 1'}, {id: 2, name: 'Updated Item 2'}]
+ */
+const updateItem = (items, update) => {
+  const index = items.findIndex((item) => item.id === update.id);
+
+  if (index === -1) {
+    return items;
+  }
+
+  return [
+    ...items.slice(0, index),
+    update,
+    ...items.slice(index + 1),
+  ];
+};
 
 export {
   getRandomInteger,
   getRandomValue,
+  updateItem
 };
