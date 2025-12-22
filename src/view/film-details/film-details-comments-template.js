@@ -1,10 +1,10 @@
 import {formatStringToDateWithTime} from '../../utils/film.js';
 
-const createCommentTemplate = ({author, comment, date, emotion}) =>
+const createCommentTemplate = ({emotion, comment, author, date}) =>
   `
     <li class="film-details__comment">
       <span class="film-details__comment-emoji">
-        <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="${emotion}">
+        <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
       </span>
       <div>
         <p class="film-details__comment-text">${comment}</p>

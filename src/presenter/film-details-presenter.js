@@ -3,8 +3,8 @@ import { render, remove, replace } from '../framework/render.js';
 
 export default class FilmDetailsPresenter {
   #container = null;
-  #changeData = null;
 
+  #changeData = null;
   #escKeyDownHandler = null;
   #closeBtnClickHandler = null;
 
@@ -12,6 +12,12 @@ export default class FilmDetailsPresenter {
 
   #film = null;
   #comments = null;
+
+  #viewData = {
+    emotion: null,
+    comment: null,
+    scrollPosition: 0
+  };
 
   constructor(container, changeData, closeBtnClickHandler, escKeyDownHandler) {
     this.#container = container;
@@ -26,7 +32,12 @@ export default class FilmDetailsPresenter {
 
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
 
-    this.#filmDetailsComponent = new FilmDetailsView(this.#film, this.#comments);
+    this.#filmDetailsComponent = new FilmDetailsView(
+      this.#film,
+      this.#comments,
+      this.#viewData,
+      this.#updateViewData
+    );
 
     this.#filmDetailsComponent.setCloseBtnClickHandler(() => {
       this.#closeBtnClickHandler();
@@ -43,7 +54,17 @@ export default class FilmDetailsPresenter {
 
     replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
 
+    this.#filmDetailsComponent.setScrollPosition();
+
     remove(prevFilmDetailsComponent);
+  };
+
+  destroy = () => {
+    remove(this.#filmDetailsComponent);
+  };
+
+  #updateViewData = (viewData) => {
+    this.#viewData = {...viewData};
   };
 
   #watchlistBtnClickHandler = () => {
@@ -74,10 +95,6 @@ export default class FilmDetailsPresenter {
         favorite: !this.#film.userDetails.favorite
       }
     });
-  };
-
-  destroy = () => {
-    remove(this.#filmDetailsComponent);
   };
 }
 

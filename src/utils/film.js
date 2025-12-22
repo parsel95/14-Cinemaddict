@@ -1,4 +1,7 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+
+dayjs.extend(duration);
 
 /**
  * Преобразует строку с датой в год
@@ -10,7 +13,7 @@ import dayjs from 'dayjs';
  * formatStringToYear('1995-05-15'); // 1995
  */
 const formatStringToYear = (date) =>
-  new Date(date).getFullYear();
+  dayjs(date).year();
 
 /**
  * Преобразует минуты в форматированное время (часы и минуты)
@@ -22,11 +25,14 @@ const formatStringToYear = (date) =>
  * formatMinutesToTime(45); // "0ч 45м"
  */
 const formatMinutesToTime = (minutes) => {
-  const MINUTES_PER_HOUR = 60;
+  const time = dayjs.duration(minutes, 'minutes');
 
-  return (minutes < MINUTES_PER_HOUR)
-    ? `${minutes}m`
-    : `${Math.floor(minutes / MINUTES_PER_HOUR)}h ${minutes % MINUTES_PER_HOUR}m`;
+  const hours = time.hours();
+  const mins = time.minutes();
+
+  return hours > 0
+    ? `${hours}h ${mins}m`
+    : `${mins}m`;
 };
 
 /** Преобразует строку с датой в форматированную дату в формате "DD Month YYYY"
@@ -38,7 +44,7 @@ const formatMinutesToTime = (minutes) => {
  * formatStringToDate('1995-05-15'); // "15 May 1995"
  */
 const formatStringToDate = (date) =>
-  new Date(date).toLocaleString('en-GB', {day: '2-digit', month: 'long', year: 'numeric'});
+  dayjs(date).format('DD MMMM YYYY');
 
 /**
  * Преобразует строку с датой в форматированную дату и время в формате "DD/MM/YYYY, HH:MM"
@@ -50,7 +56,7 @@ const formatStringToDate = (date) =>
  * formatStringToDateWithTime('1995-05-15T14:45:00'); // "15/05/1995, 14:45"
  */
 const formatStringToDateWithTime = (date) =>
-  new Date(date).toLocaleString('en-GB');
+  dayjs(date).format('DD/MM/YYYY HH:mm');
 
 /** Вспомогательная функция для сортировки фильмов по дате с учётом возможных null значений
  * @param {string|null} dateA - Дата первого фильма в формате ISO или null

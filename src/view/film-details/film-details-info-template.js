@@ -5,6 +5,11 @@ const generateGenreList = (genres) =>
     `<span class="film-details__genre">${genreItem}</span>`
   ).join('');
 
+const generateGenreTitle = (genres) =>
+  (genres.length > 1)
+    ? 'Genres'
+    : 'Genre';
+
 export const createFilmDetailsInfoTemplate = (filmInfo) => {
   const {
     title, alternativeTitle, totalRating,
@@ -57,7 +62,7 @@ export const createFilmDetailsInfoTemplate = (filmInfo) => {
             <td class="film-details__cell">${release.releaseСountry}</td>
           </tr>
           <tr class="film-details__row">
-            <td class="film-details__term">Genres</td>
+            <td class="film-details__term">${generateGenreTitle(genre)}</td>
             <td class="film-details__cell">
               ${generateGenreList(genre)}
           </tr>
