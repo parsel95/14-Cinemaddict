@@ -43,7 +43,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
       comments,
       viewData.emotion,
       viewData.comment,
-      viewData.scrollPosition
+      viewData.scrollPosition,
     );
     this.updateViewData = updateViewData;
     this.#setInnerHandlers();
@@ -56,10 +56,13 @@ export default class FilmDetailsView extends AbstractStatefulView {
   _restoreHandlers = () => {
     this.setScrollPosition();
     this.#setInnerHandlers();
+
     this.setCloseBtnClickHandler(this._callback.closeBtnClick);
     this.setWatchlistBtnClickHandler(this._callback.watchlistBtnClick);
     this.setWatchedBtnClickHandler(this._callback.watchedBtnClick);
     this.setFavoriteBtnClickHandler(this._callback.favoriteBtnClick);
+    this.setCommentSubmitHandler(this._callback.commentSubmit);
+    this.setDeleteCLickHandler(this._callback.deleteClick);
   };
 
   setScrollPosition = () => {
@@ -90,6 +93,17 @@ export default class FilmDetailsView extends AbstractStatefulView {
     this.element
       .querySelector('.film-details__control-button--favorite')
       .addEventListener('click', this.#favoriteBtnClickHandler);
+  }
+
+  setCommentSubmitHandler(callback) {
+    this._callback.commentSubmit = callback;
+  }
+
+  setDeleteCLickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.element
+      .querySelector('.film-details__comments-list')
+      ?.addEventListener('click', this.#CommentDeleteClickHandler);
   }
 
   #closeBtnClickHandler = (evt) => {
@@ -128,15 +142,35 @@ export default class FilmDetailsView extends AbstractStatefulView {
     this._setState({comment: evt.target.value});
   };
 
+  #commentKeyDownHandler = (evt) => {
+    if ((evt.ctrlKey || evt.metaKey) && evt.key === 'Enter') {
+      evt.preventDefault();
+
+      if (!this._state.comment || !this._state.checkedEmotion) {
+        return;
+      }
+
+      this.#updateViewData();
+
+      this._callback.commentSubmit({
+        comment: this._state.comment,
+        emotion: this._state.checkedEmotion
+      });
+    }
+  };
+
   #setInnerHandlers = () => {
     this.element
       .querySelectorAll('.film-details__emoji-label')
       .forEach((element) => {
         element.addEventListener('click', this.#emotionClickHandler);
       });
-    this.element
-      .querySelector('.film-details__comment-input')
-      .addEventListener('input', this.#commentInputChangeHandler);
+
+    const commentInput =
+      this.element.querySelector('.film-details__comment-input');
+
+    commentInput.addEventListener('input', this.#commentInputChangeHandler);
+    commentInput.addEventListener('keydown', this.#commentKeyDownHandler);
   };
 
   #updateViewData = () => {
@@ -145,6 +179,18 @@ export default class FilmDetailsView extends AbstractStatefulView {
       comment: this._state.comment,
       scrollPosition: this.element.scrollTop
     });
+  };
+
+  #CommentDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+
+    if (!evt.target.classList.contains('film-details__comment-delete')) {
+      return;
+    }
+
+    const commentId = evt.target.dataset.commentId;
+    this.#updateViewData();
+    this._callback.deleteClick(commentId);
   };
 
   static parseFilmToState = (

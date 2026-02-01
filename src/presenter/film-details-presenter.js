@@ -1,5 +1,6 @@
 import FilmDetailsView from '../view/film-details/film-details-view.js';
 import { render, remove, replace } from '../framework/render.js';
+import { UserAction, UpdateType } from '../const.js';
 
 export default class FilmDetailsPresenter {
   #container = null;
@@ -46,6 +47,8 @@ export default class FilmDetailsPresenter {
     this.#filmDetailsComponent.setWatchlistBtnClickHandler(this.#watchlistBtnClickHandler);
     this.#filmDetailsComponent.setWatchedBtnClickHandler(this.#watchedBtnClickHandler);
     this.#filmDetailsComponent.setFavoriteBtnClickHandler(this.#favoriteBtnClickHandler);
+    this.#filmDetailsComponent.setCommentSubmitHandler(this.#handleCommentSubmit);
+    this.#filmDetailsComponent.setDeleteCLickHandler(this.#handleDeleteClick);
 
     if (prevFilmDetailsComponent === null) {
       render(this.#filmDetailsComponent, this.#container);
@@ -59,6 +62,28 @@ export default class FilmDetailsPresenter {
     remove(prevFilmDetailsComponent);
   };
 
+  #handleCommentSubmit = ({comment, emotion}) => {
+    const newComment = {
+      id: Math.random().toString(36).slice(2, 10),
+      comment,
+      emotion,
+      author: 'User',
+      date: new Date().toISOString()
+    };
+
+    this.#changeData(
+      UserAction.ADD_COMMENT,
+      UpdateType.MINOR,
+      newComment
+    );
+
+    this.#viewData = {
+      emotion: null,
+      comment: '',
+      scrollPosition: this.#viewData.scrollPosition
+    };
+  };
+
   destroy = () => {
     remove(this.#filmDetailsComponent);
   };
@@ -68,33 +93,57 @@ export default class FilmDetailsPresenter {
   };
 
   #watchlistBtnClickHandler = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        watchlist: !this.#film.userDetails.watchlist
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          watchlist: !this.#film.userDetails.watchlist
+        }
       }
-    });
+    );
   };
 
   #watchedBtnClickHandler = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        alreadyWatched: !this.#film.userDetails.alreadyWatched
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          alreadyWatched: !this.#film.userDetails.alreadyWatched
+        }
       }
-    });
+    );
   };
 
   #favoriteBtnClickHandler = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        favorite: !this.#film.userDetails.favorite
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          favorite: !this.#film.userDetails.favorite
+        }
       }
-    });
+    );
+  };
+
+  #handleDeleteClick = (commentId) => {
+    const comment = this.#comments.find(
+      (item) => item.id === commentId
+    );
+
+    this.#changeData(
+      UserAction.DELETE_COMMENT,
+      UpdateType.MINOR,
+      comment
+    );
   };
 }
 

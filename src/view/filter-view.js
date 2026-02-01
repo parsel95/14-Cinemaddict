@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {FILTER_TYPE_ALL_NAME, FilterType} from '../const.js';
 
-const createFilterItemTemplate = ({name, count}, isActive) => {
+const createFilterItemTemplate = ({type, count}, currentFilterType) => {
   const getFilterName = (filterName) =>
     (filterName === FilterType.ALL)
       ? FILTER_TYPE_ALL_NAME
@@ -14,21 +14,22 @@ const createFilterItemTemplate = ({name, count}, isActive) => {
 
   return `
     <a
-      href="#${name}"
+      href="#${type}"
       class="
         main-navigation__item
-        ${(isActive) ? 'main-navigation__item--active' : ''}
+        ${(type === currentFilterType) ? 'main-navigation__item--active' : ''}
       "
+      data-filter-type="${type}"
     >
-      ${getFilterName(name)}
-      ${getFilterTextContent(name)}
+      ${getFilterName(type)}
+      ${getFilterTextContent(type)}
     </a>
   `;
 };
 
-const createFilterViewTemplate = (filters) => {
+const createFilterViewTemplate = (filters, currentFilterType) => {
   const filterItems = filters
-    .map((filter, index) => createFilterItemTemplate(filter, index === 0))
+    .map((filter) => createFilterItemTemplate(filter, currentFilterType))
     .join('');
 
   return `
@@ -41,13 +42,32 @@ const createFilterViewTemplate = (filters) => {
 
 export default class FilterView extends AbstractView {
   #filters = null;
+  #currentFilter = null;
 
-  constructor(filters) {
+  constructor(filters, currentFilterType) {
     super();
     this.#filters = filters;
+    this.#currentFilter = currentFilterType;
   }
 
   get template() {
-    return createFilterViewTemplate(this.#filters);
+    return createFilterViewTemplate(this.#filters, this.#currentFilter);
   }
+
+  setFilterTypeChangeHandler = (callback) => {
+    this._callback.filterTypeChange = callback;
+    this.element.addEventListener('click', this.#filterTypeChangeHandler);
+  };
+
+  #filterTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const filterLink = evt.target.closest('a[data-filter-type]');
+
+    if (!filterLink) {
+      return;
+    }
+
+    this._callback.filterTypeChange(filterLink.dataset.filterType);
+  };
 }

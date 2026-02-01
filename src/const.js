@@ -31,6 +31,18 @@ const SortType = {
   RATING: 'rating',
 };
 
+const UserAction = {
+  UPDATE_FILM: 'UPDATE_FILM',
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 export {
   FILM_COUNT,
   FILM_COUNT_PER_STEP,
@@ -39,5 +51,7 @@ export {
   FILTER_TYPE_ALL_NAME,
   UserStatusValue,
   UserStatusTitle,
-  SortType
+  SortType,
+  UserAction,
+  UpdateType
 };
