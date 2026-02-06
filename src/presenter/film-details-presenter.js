@@ -71,17 +71,19 @@ export default class FilmDetailsPresenter {
       date: new Date().toISOString()
     };
 
+    this.#viewData = {
+      emotion: null,
+      comment: '',
+      scrollPosition: this.#viewData.scrollPosition
+    };
+
     this.#changeData(
       UserAction.ADD_COMMENT,
       UpdateType.MINOR,
       newComment
     );
 
-    this.#viewData = {
-      emotion: null,
-      comment: '',
-      scrollPosition: this.#viewData.scrollPosition
-    };
+
   };
 
   destroy = () => {
