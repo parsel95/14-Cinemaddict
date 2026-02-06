@@ -9,13 +9,13 @@ import FilmPresenter from './film-presenter.js';
 import FilmDetailsPresenter from './film-details-presenter.js';
 
 import { remove, render, replace } from '../framework/render.js';
-import { FILM_COUNT_PER_STEP, SortType, UserAction, UpdateType } from '../const.js';
+import { FILM_COUNT_PER_STEP, SortType, UserAction, UpdateType, FilterType } from '../const.js';
 import { sortFilmsByDate, sortFilmsByRating } from '../utils/film.js';
 import { filter } from '../utils/filter.js';
 
 export default class FilmsPresenter {
   #sortComponent = null;
-  #filmListEmptyViewComponent = new FilmListEmptyView();
+  #filmListEmptyViewComponent = null;
   #filmsComponent = new FilmsView();
   #filmListComponent = new FilmListView();
   #filmListContainerComponent = new FilmListContainerView();
@@ -28,6 +28,7 @@ export default class FilmsPresenter {
 
   #selectedFilm = null;
   #currentSortType = SortType.DEFAULT;
+  #filterType = FilterType.ALL;
 
   #filmPresenter = new Map();
   #filmDetailsPresenter = null;
@@ -46,9 +47,9 @@ export default class FilmsPresenter {
   }
 
   get films() {
-    const filterType = this.#filterModel.filter;
+    this.#filterType = this.#filterModel.filter;
     const films = this.#filmsModel.films;
-    const filteredFilms = filter[filterType](films);
+    const filteredFilms = filter[this.#filterType](films);
 
     switch (this.#currentSortType) {
       case SortType.DATE:
@@ -246,6 +247,7 @@ export default class FilmsPresenter {
   };
 
   #renderFilmListEmptyView = () => {
+    this.#filmListEmptyViewComponent = new FilmListEmptyView(this.#filterType);
     render(this.#filmListEmptyViewComponent, this.#container);
   };
 
@@ -277,8 +279,11 @@ export default class FilmsPresenter {
     remove(this.#filmsComponent);
     remove(this.#filmListComponent);
     remove(this.#filmListContainerComponent);
-    remove(this.#filmListEmptyViewComponent);
     remove(this.#filmButtonMoreComponent);
+
+    if (this.#filmListEmptyViewComponent) {
+      remove(this.#filmListEmptyViewComponent);
+    }
 
     this.#sortComponent = null;
 
