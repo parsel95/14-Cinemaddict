@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {FILTER_TYPE_ALL_NAME, FilterType} from '../const.js';
 
-const createFilterItemTemplate = ({type, count}, currentFilterType) => {
+const createFilterItemTemplate = ({name, count}, currentFilter) => {
   const getFilterName = (filterName) =>
     (filterName === FilterType.ALL)
       ? FILTER_TYPE_ALL_NAME
@@ -14,22 +14,22 @@ const createFilterItemTemplate = ({type, count}, currentFilterType) => {
 
   return `
     <a
-      href="#${type}"
+      href="#${name}"
       class="
         main-navigation__item
-        ${(type === currentFilterType) ? 'main-navigation__item--active' : ''}
+        ${(name === currentFilter) ? 'main-navigation__item--active' : ''}
       "
-      data-filter-type="${type}"
+      data-filter-type="${name}"
     >
-      ${getFilterName(type)}
-      ${getFilterTextContent(type)}
+      ${getFilterName(name)}
+      ${getFilterTextContent(name)}
     </a>
   `;
 };
 
-const createFilterViewTemplate = (filters, currentFilterType) => {
+const createFilterViewTemplate = (filters, currentFilter) => {
   const filterItems = filters
-    .map((filter) => createFilterItemTemplate(filter, currentFilterType))
+    .map((filter) => createFilterItemTemplate(filter, currentFilter))
     .join('');
 
   return `
@@ -39,35 +39,33 @@ const createFilterViewTemplate = (filters, currentFilterType) => {
   `;
 };
 
-
 export default class FilterView extends AbstractView {
   #filters = null;
   #currentFilter = null;
 
-  constructor(filters, currentFilterType) {
+  constructor(filters, currentFilter) {
     super();
     this.#filters = filters;
-    this.#currentFilter = currentFilterType;
+    this.#currentFilter = currentFilter;
   }
 
   get template() {
     return createFilterViewTemplate(this.#filters, this.#currentFilter);
   }
 
-  setFilterTypeChangeHandler = (callback) => {
+  setFilterTypeClickHandler(callback) {
     this._callback.filterTypeChange = callback;
-    this.element.addEventListener('click', this.#filterTypeChangeHandler);
-  };
+    this.element
+      .addEventListener('click', this.#filterTypeChangeHandler);
+  }
 
   #filterTypeChangeHandler = (evt) => {
-    evt.preventDefault();
-
-    const filterLink = evt.target.closest('a[data-filter-type]');
-
-    if (!filterLink) {
+    if (evt.target.tagName !== 'A') {
       return;
     }
 
-    this._callback.filterTypeChange(filterLink.dataset.filterType);
+    evt.preventDefault();
+
+    this._callback.filterTypeChange(evt.target.dataset.filterType);
   };
 }

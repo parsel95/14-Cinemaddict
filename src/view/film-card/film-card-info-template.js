@@ -1,9 +1,12 @@
-import { formatStringToYear, formatMinutesToTime } from '../../utils/film.js';
+import {formatStringToYear, formatMinutesToTime} from '../../utils/film.js';
 
 export const createCardInfoTemplate = (filmInfo, commentsLength) => {
   const {
-    title, totalRating, release,
-    runtime, genre, poster, description } = filmInfo;
+    title, totalRating,
+    release, runtime,
+    genre, poster,
+    description,
+  } = filmInfo;
 
   return `
     <a class="film-card__link">
@@ -15,8 +18,12 @@ export const createCardInfoTemplate = (filmInfo, commentsLength) => {
         <span class="film-card__genre">${genre[0]}</span>
       </p>
       <img src="${poster}" alt="" class="film-card__poster">
-      <p class="film-card__description">${description}</p>
-      <span class="film-card__comments">${commentsLength} comments</span>
+      <p class="film-card__description">
+        ${description}
+      </p>
+      <span class="film-card__comments">
+        ${commentsLength} comments
+      </span>
     </a>`;
 };
 

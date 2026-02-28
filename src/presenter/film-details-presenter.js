@@ -1,13 +1,13 @@
 import FilmDetailsView from '../view/film-details/film-details-view.js';
-import { render, remove, replace } from '../framework/render.js';
-import { UserAction, UpdateType } from '../const.js';
+import {render, replace, remove} from '../framework/render.js';
+import {UpdateType, UserAction} from '../const.js';
 
 export default class FilmDetailsPresenter {
   #container = null;
 
   #changeData = null;
-  #escKeyDownHandler = null;
   #closeBtnClickHandler = null;
+  #escKeyDownHandler = null;
 
   #filmDetailsComponent = null;
 
@@ -27,9 +27,12 @@ export default class FilmDetailsPresenter {
     this.#escKeyDownHandler = escKeyDownHandler;
   }
 
-  init = (film, comments) => {
+  init = (film, comments, isCommentLoadingError) => {
     this.#film = film;
-    this.#comments = comments;
+
+    this.#comments = (!isCommentLoadingError)
+      ? comments
+      : [];
 
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
 
@@ -37,7 +40,8 @@ export default class FilmDetailsPresenter {
       this.#film,
       this.#comments,
       this.#viewData,
-      this.#updateViewData
+      this.#updateViewData,
+      isCommentLoadingError
     );
 
     this.#filmDetailsComponent.setCloseBtnClickHandler(() => {
@@ -47,8 +51,10 @@ export default class FilmDetailsPresenter {
     this.#filmDetailsComponent.setWatchlistBtnClickHandler(this.#watchlistBtnClickHandler);
     this.#filmDetailsComponent.setWatchedBtnClickHandler(this.#watchedBtnClickHandler);
     this.#filmDetailsComponent.setFavoriteBtnClickHandler(this.#favoriteBtnClickHandler);
-    this.#filmDetailsComponent.setCommentSubmitHandler(this.#handleCommentSubmit);
-    this.#filmDetailsComponent.setDeleteCLickHandler(this.#handleDeleteClick);
+
+    if (!isCommentLoadingError) {
+      this.#filmDetailsComponent.setCommentDeleteClickHandler(this.#commentDeleteClickHandler);
+    }
 
     if (prevFilmDetailsComponent === null) {
       render(this.#filmDetailsComponent, this.#container);
@@ -62,32 +68,84 @@ export default class FilmDetailsPresenter {
     remove(prevFilmDetailsComponent);
   };
 
-  #handleCommentSubmit = ({comment, emotion}) => {
-    const newComment = {
-      id: Math.random().toString(36).slice(2, 10),
-      comment,
-      emotion,
-      author: 'User',
-      date: new Date().toISOString()
-    };
-
-    this.#viewData = {
-      emotion: null,
-      comment: '',
-      scrollPosition: this.#viewData.scrollPosition
-    };
-
-    this.#changeData(
-      UserAction.ADD_COMMENT,
-      UpdateType.MINOR,
-      newComment
-    );
-
-
-  };
-
   destroy = () => {
     remove(this.#filmDetailsComponent);
+  };
+
+  clearViewData = () => {
+    this.#updateViewData({
+      comment: null,
+      emotion: null,
+      scrollPosition: this.#viewData.scrollPosition
+    });
+
+    this.#filmDetailsComponent.updateElement({
+      checkedEmotion: this.#viewData.emotion,
+      comment: this.#viewData.comment,
+      scrollPosition: this.#viewData.scrollPosition
+    });
+  };
+
+  setCommentCreating = () => {
+    this.#filmDetailsComponent.updateElement({
+      ...this.#viewData,
+      isDisabled: true,
+      isCommentCreating: true
+    });
+  };
+
+  setCommentDeleting = (commentId) => {
+    this.#filmDetailsComponent.updateElement({
+      ...this.#viewData,
+      isDisabled: true,
+      deleteCommentId: commentId
+    });
+  };
+
+  setFilmEditing = () => {
+    this.#filmDetailsComponent.updateElement({
+      ...this.#viewData,
+      isDisabled: true,
+      isFilmEditing: true,
+    });
+  };
+
+  setAborting = ({actionType, commentId}) => {
+    this.#filmDetailsComponent.updateElement({
+      ...this.#viewData,
+      isDisabled: false,
+      deleteCommentId: null,
+      isFilmEditing: false,
+    });
+
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmDetailsComponent.shakeControls();
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#filmDetailsComponent.shakeForm();
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#filmDetailsComponent.shakeComment(commentId);
+        break;
+    }
+  };
+
+  createComment = () => {
+    this.#filmDetailsComponent.setCommentData();
+
+    const {emotion, comment} = this.#viewData;
+
+    if (emotion && comment) {
+      this.#changeData(
+        UserAction.ADD_COMMENT,
+        UpdateType.PATCH,
+        this.#film,
+        {emotion, comment}
+      );
+    } else {
+      this.#filmDetailsComponent.shakeForm();
+    }
   };
 
   #updateViewData = (viewData) => {
@@ -97,13 +155,13 @@ export default class FilmDetailsPresenter {
   #watchlistBtnClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           watchlist: !this.#film.userDetails.watchlist
-        }
+        },
       }
     );
   };
@@ -111,40 +169,38 @@ export default class FilmDetailsPresenter {
   #watchedBtnClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           alreadyWatched: !this.#film.userDetails.alreadyWatched
         }
-      }
-    );
+      });
   };
 
   #favoriteBtnClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           favorite: !this.#film.userDetails.favorite
         }
-      }
-    );
+      });
   };
 
-  #handleDeleteClick = (commentId) => {
-    const comment = this.#comments.find(
-      (item) => item.id === commentId
-    );
+  #commentDeleteClickHandler = (commentId) => {
+    const deletedComment = this.#comments
+      .find((comment) => comment.id === commentId);
 
     this.#changeData(
       UserAction.DELETE_COMMENT,
-      UpdateType.MINOR,
-      comment
+      UpdateType.PATCH,
+      this.#film,
+      deletedComment
     );
   };
 }

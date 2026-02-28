@@ -1,76 +1,77 @@
-import {render , replace , remove} from '../framework/render.js';
 import FilterView from '../view/filter-view.js';
+import {remove, render, replace} from '../framework/render.js';
+import {FilterType, UpdateType} from '../const.js';
 import {filter} from '../utils/filter.js';
-import {FilterType , UpdateType} from '../const.js';
 
 export default class FilterPresenter {
-  #filterContainer = null;
-  #filterModel = null;
-  #filmsModel = null;
-
+  #container = null;
   #filterComponent = null;
 
-  constructor(filterContainer, filterModel, filmsModel) {
-    this.#filterContainer = filterContainer;
-    this.#filterModel = filterModel;
-    this.#filmsModel = filmsModel;
+  #currentFilter = null;
 
-    this.#filmsModel.addObserver(this.#handleModelEvent);
-    this.#filterModel.addObserver(this.#handleModelEvent);
+  #filmsModel = null;
+  #filterModel = null;
+
+  constructor(container, filmsModel, filterModel) {
+    this.#container = container;
+    this.#filmsModel = filmsModel;
+    this.#filterModel = filterModel;
+
+    this.#filmsModel.addObserver(this.#modelEventHandler);
+    this.#filterModel.addObserver(this.#modelEventHandler);
   }
 
   get filters() {
-    const films = this.#filmsModel.films;
+    const films = this.#filmsModel.get();
 
     return [
       {
-        type: FilterType.ALL,
-        name: 'All',
-        count: filter[FilterType.ALL](films).length,
+        name: FilterType.ALL,
+        count: filter[FilterType.ALL](films).length
       },
       {
-        type: FilterType.WATCHLIST,
-        name: 'Watchlist',
-        count: filter[FilterType.WATCHLIST](films).length,
+        name: FilterType.WATCHLIST,
+        count: filter[FilterType.WATCHLIST](films).length
       },
       {
-        type: FilterType.HISTORY,
-        name: 'History',
-        count: filter[FilterType.HISTORY](films).length,
+        name: FilterType.HISTORY,
+        count: filter[FilterType.HISTORY](films).length
       },
       {
-        type: FilterType.FAVORITES,
-        name: 'Favorites',
-        count: filter[FilterType.FAVORITES](films).length,
-      },
+        name: FilterType.FAVORITES,
+        count: filter[FilterType.FAVORITES](films).length
+      }
     ];
   }
 
-  init = () => {
+  init() {
+    this.#currentFilter = this.#filterModel.get();
+
     const filters = this.filters;
-    const previousFilterComponent = this.#filterComponent;
 
-    this.#filterComponent = new FilterView(filters, this.#filterModel.filter);
-    this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
+    const prevFilterComponent = this.#filterComponent;
 
-    if (previousFilterComponent === null) {
-      render(this.#filterComponent, this.#filterContainer);
+    this.#filterComponent = new FilterView(filters, this.#currentFilter);
+    this.#filterComponent.setFilterTypeClickHandler(this.#filterTypeChangeHandler);
+
+    if (prevFilterComponent === null) {
+      render(this.#filterComponent, this.#container);
       return;
     }
 
-    replace(this.#filterComponent, previousFilterComponent);
-    remove(previousFilterComponent);
-  };
+    replace(this.#filterComponent, prevFilterComponent);
+    remove(prevFilterComponent);
+  }
 
-  #handleModelEvent = () => {
+  #modelEventHandler = () => {
     this.init();
   };
 
-  #handleFilterTypeChange = (filterType) => {
-    if (this.#filterModel.filter === filterType) {
+  #filterTypeChangeHandler = (filterType) => {
+    if (this.#filterModel.get === filterType) {
       return;
     }
 
-    this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
+    this.#filterModel.set(UpdateType.MAJOR, filterType);
   };
 }

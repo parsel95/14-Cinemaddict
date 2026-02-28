@@ -1,10 +1,15 @@
+/* eslint-disable indent */
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import {createFilmDetailsInfoTemplate} from './film-details-info-template.js';
 import {createFilmDetailsCommentsTemplate} from './film-details-comments-template.js';
 import {createFilmDetailsFormTemplate} from './film-details-form-template.js';
 import {createFilmDetailsControlsTemplate} from './film-details-controls-template.js';
 
-const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, checkedEmotion, comment}) =>
+const createFilmDetailsTemplate = ({
+  filmInfo, userDetails, comments, checkedEmotion,
+  comment, isCommentLoadingError, isDisabled,
+  deleteCommentId
+}) =>
   `
     <section class="film-details">
       <div class="film-details__inner">
@@ -22,12 +27,18 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, checkedEmot
         <div class="film-details__bottom-container">
           <section class="film-details__comments-wrap">
             <h3 class="film-details__comments-title">
-              Comments <span class="film-details__comments-count">${comments.length}</span>
+            ${((isCommentLoadingError)
+              ? `
+                😵‍💫 Sorry, but we can't load comments. Try to refresh the page. Thanks for understanding.
+                `
+              : `
+                Comments <span class="film-details__comments-count">${comments.length}</span>
+                `
+            )}
             </h3>
+            ${(!isCommentLoadingError) ? createFilmDetailsCommentsTemplate(comments, deleteCommentId) : ''}
 
-            ${createFilmDetailsCommentsTemplate(comments)}
-
-            ${createFilmDetailsFormTemplate(checkedEmotion, comment)}
+            ${createFilmDetailsFormTemplate(checkedEmotion, comment, isCommentLoadingError, isDisabled)}
 
           </section>
         </div>
@@ -36,7 +47,8 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, checkedEmot
   `;
 
 export default class FilmDetailsView extends AbstractStatefulView {
-  constructor(film, comments, viewData, updateViewData) {
+
+  constructor(film, comments, viewData, updateViewData, isCommentLoadingError) {
     super();
     this._state = FilmDetailsView.parseFilmToState(
       film,
@@ -44,25 +56,49 @@ export default class FilmDetailsView extends AbstractStatefulView {
       viewData.emotion,
       viewData.comment,
       viewData.scrollPosition,
+      isCommentLoadingError
     );
     this.updateViewData = updateViewData;
-    this.#setInnerHandlers();
+
+    if (!isCommentLoadingError) {
+      this.#setInnerHandlers();
+    }
   }
 
   get template() {
     return createFilmDetailsTemplate(this._state);
   }
 
+  shakeComment = (commentId) => {
+    const commentElement = this.element.querySelector(`li[data-comment-id='${commentId}']`);
+    this.shake.call({element: commentElement});
+  };
+
+  shakeForm = () => {
+    const formElement = this.element.querySelector('.film-details__new-comment');
+    this.shake.call({element: formElement});
+  };
+
+  shakeControls = () => {
+    const controlsElement = this.element.querySelector('.film-details__controls');
+    this.shake.call({element: controlsElement});
+  };
+
   _restoreHandlers = () => {
     this.setScrollPosition();
-    this.#setInnerHandlers();
-
     this.setCloseBtnClickHandler(this._callback.closeBtnClick);
     this.setWatchlistBtnClickHandler(this._callback.watchlistBtnClick);
     this.setWatchedBtnClickHandler(this._callback.watchedBtnClick);
     this.setFavoriteBtnClickHandler(this._callback.favoriteBtnClick);
-    this.setCommentSubmitHandler(this._callback.commentSubmit);
-    this.setDeleteCLickHandler(this._callback.deleteClick);
+
+    if (!this._state.isCommentLoadingError && !this._state.isDisabled) {
+      this.#setInnerHandlers();
+      this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+    }
+  };
+
+  setCommentData = () => {
+    this.#updateViewData();
   };
 
   setScrollPosition = () => {
@@ -71,7 +107,9 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   setCloseBtnClickHandler(callback) {
     this._callback.closeBtnClick = callback;
-    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeBtnClickHandler);
+    this.element
+      .querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#closeBtnClickHandler);
   }
 
   setWatchlistBtnClickHandler(callback) {
@@ -95,15 +133,16 @@ export default class FilmDetailsView extends AbstractStatefulView {
       .addEventListener('click', this.#favoriteBtnClickHandler);
   }
 
-  setCommentSubmitHandler(callback) {
-    this._callback.commentSubmit = callback;
-  }
+  setCommentDeleteClickHandler(callback) {
+    const commentDeleteElements = this.element.querySelectorAll('.film-details__comment-delete');
 
-  setDeleteCLickHandler(callback) {
-    this._callback.deleteClick = callback;
-    this.element
-      .querySelector('.film-details__comments-list')
-      ?.addEventListener('click', this.#CommentDeleteClickHandler);
+    if (commentDeleteElements) {
+      this._callback.commentDeleteClick = callback;
+      commentDeleteElements.forEach(
+        (element) =>
+          element.addEventListener('click', this.#commentDeleteClickHandler, true)
+      );
+    }
   }
 
   #closeBtnClickHandler = (evt) => {
@@ -142,21 +181,10 @@ export default class FilmDetailsView extends AbstractStatefulView {
     this._setState({comment: evt.target.value});
   };
 
-  #commentKeyDownHandler = (evt) => {
-    if ((evt.ctrlKey || evt.metaKey) && evt.key === 'Enter') {
-      evt.preventDefault();
-
-      if (!this._state.comment || !this._state.checkedEmotion) {
-        return;
-      }
-
-      this.#updateViewData();
-
-      this._callback.commentSubmit({
-        comment: this._state.comment,
-        emotion: this._state.checkedEmotion
-      });
-    }
+  #commentDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#updateViewData();
+    this._callback.commentDeleteClick(evt.target.dataset.commentId);
   };
 
   #setInnerHandlers = () => {
@@ -165,12 +193,9 @@ export default class FilmDetailsView extends AbstractStatefulView {
       .forEach((element) => {
         element.addEventListener('click', this.#emotionClickHandler);
       });
-
-    const commentInput =
-      this.element.querySelector('.film-details__comment-input');
-
-    commentInput.addEventListener('input', this.#commentInputChangeHandler);
-    commentInput.addEventListener('keydown', this.#commentKeyDownHandler);
+    this.element
+      .querySelector('.film-details__comment-input')
+      .addEventListener('input', this.#commentInputChangeHandler);
   };
 
   #updateViewData = () => {
@@ -181,29 +206,22 @@ export default class FilmDetailsView extends AbstractStatefulView {
     });
   };
 
-  #CommentDeleteClickHandler = (evt) => {
-    evt.preventDefault();
-
-    if (!evt.target.classList.contains('film-details__comment-delete')) {
-      return;
-    }
-
-    const commentId = evt.target.dataset.commentId;
-    this.#updateViewData();
-    this._callback.deleteClick(commentId);
-  };
-
   static parseFilmToState = (
     film,
     comments,
     checkedEmotion = null,
     comment = null,
-    scrollPosition = 0
+    scrollPosition = 0,
+    isCommentLoadingError = false
   ) => ({
     ...film,
     comments,
+    isCommentLoadingError,
     checkedEmotion,
     comment,
-    scrollPosition
+    scrollPosition,
+    isDisabled: false,
+    deleteCommentId: null,
+    isFilmEditing: false
   });
 }

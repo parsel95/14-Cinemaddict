@@ -1,4 +1,4 @@
-import { UserStatusValue, UserStatusTitle } from '../const';
+import {UserStatusValue, UserStatusTitle} from '../const';
 
 const getUserStatus = (films) => {
   const watchedFilmCount = films.filter((film) =>

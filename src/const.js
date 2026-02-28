@@ -1,4 +1,4 @@
-const FILM_COUNT = 22;
+const FILM_COUNT = 20;
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -13,6 +13,12 @@ const FilterType = {
   FAVORITES: 'favorites',
 };
 
+const SortType = {
+  DEFAULT: 'default',
+  DATE: 'date',
+  RATING: 'rating',
+};
+
 const UserStatusValue = {
   NOVICE: 0,
   FAN: 10,
@@ -25,12 +31,6 @@ const UserStatusTitle = {
   MOVIE_BUFF: 'Movie Buff',
 };
 
-const SortType = {
-  DEFAULT: 'default',
-  DATE: 'date',
-  RATING: 'rating',
-};
-
 const UserAction = {
   UPDATE_FILM: 'UPDATE_FILM',
   ADD_COMMENT: 'ADD_COMMENT',
@@ -41,17 +41,25 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT'
+};
+
+const Method = {
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
 };
 
 export {
   FILM_COUNT,
-  FILM_COUNT_PER_STEP,
-  FilterType,
   EMOTIONS,
+  FILM_COUNT_PER_STEP,
   FILTER_TYPE_ALL_NAME,
+  FilterType,
+  SortType,
   UserStatusValue,
   UserStatusTitle,
-  SortType,
   UserAction,
-  UpdateType
+  UpdateType,
+  Method
 };

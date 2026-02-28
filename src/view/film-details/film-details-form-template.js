@@ -24,9 +24,14 @@ const createEmotionItem = (emotionItem, checkedEmotionValue) =>
     </label>
   `;
 
-export const createFilmDetailsFormTemplate = (checkedEmotion, comment) =>
+export const createFilmDetailsFormTemplate = (checkedEmotion, comment, isCommentLoadingError, isDisabled) =>
   `
-    <form class="film-details__new-comment"  action="" method="get">
+    <form
+      class="film-details__new-comment"
+      action=""
+      method="get"
+      ${(isCommentLoadingError || isDisabled) ? 'style="opacity: 20%" disabled' : ''}
+    >
       <div class="film-details__add-emoji-label">
       ${(checkedEmotion) ? `<img src="images/emoji/${checkedEmotion}.png" width="55" height="55" alt="emoji-${checkedEmotion}">` : ''}
       </div>
@@ -36,6 +41,7 @@ export const createFilmDetailsFormTemplate = (checkedEmotion, comment) =>
           class="film-details__comment-input"
           placeholder="Select reaction below and write comment here"
           name="comment"
+          ${(isCommentLoadingError || isDisabled) ? 'disabled' : ''}
         >${(comment) ? comment : ''}</textarea>
       </label>
 

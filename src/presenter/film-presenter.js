@@ -1,6 +1,6 @@
 import FilmCardView from '../view/film-card/film-card-view.js';
-import { render, remove, replace } from '../framework/render.js';
-import { UserAction, UpdateType } from '../const.js';
+import {render, replace, remove} from '../framework/render.js';
+import {UserAction, UpdateType} from '../const.js';
 
 export default class FilmPresenter {
   #container = null;
@@ -45,50 +45,57 @@ export default class FilmPresenter {
     remove(prevFilmCardComponent);
   };
 
+  destroy = () => {
+    remove(this.#filmCardComponent);
+  };
+
+  setFilmEditing = () => {
+    this.#filmCardComponent.updateElement({isFilmEditing: true});
+  };
+
+  setAborting = () => {
+    this.#filmCardComponent.updateElement({isFilmEditing: false});
+    this.#filmCardComponent.shakeControls();
+  };
+
   #watchlistBtnClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           watchlist: !this.#film.userDetails.watchlist
-        }
-      }
-    );
+        },
+      });
   };
 
   #watchedBtnClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           alreadyWatched: !this.#film.userDetails.alreadyWatched
         }
-      }
-    );
+      });
   };
 
   #favoriteBtnClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           favorite: !this.#film.userDetails.favorite
         }
-      }
-    );
-  };
-
-  destroy = () => {
-    remove(this.#filmCardComponent);
+      });
   };
 }
+
 
