@@ -50,10 +50,18 @@ export default class FilmPresenter {
   };
 
   setFilmEditing = () => {
+    if (!this.#filmCardComponent) {
+      return;
+    }
+
     this.#filmCardComponent.updateElement({isFilmEditing: true});
   };
 
   setAborting = () => {
+    if (!this.#filmCardComponent) {
+      return;
+    }
+
     this.#filmCardComponent.updateElement({isFilmEditing: false});
     this.#filmCardComponent.shakeControls();
   };

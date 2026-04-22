@@ -31,6 +31,11 @@ const UserStatusTitle = {
   MOVIE_BUFF: 'Movie Buff',
 };
 
+const ExtraType = {
+  TOP_RATED: 'Top rated',
+  MOST_COMMENTED: 'Most commented',
+};
+
 const UserAction = {
   UPDATE_FILM: 'UPDATE_FILM',
   ADD_COMMENT: 'ADD_COMMENT',
@@ -59,6 +64,7 @@ export {
   SortType,
   UserStatusValue,
   UserStatusTitle,
+  ExtraType,
   UserAction,
   UpdateType,
   Method

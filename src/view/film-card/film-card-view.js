@@ -1,4 +1,4 @@
-import AbstractView from '../../framework/view/abstract-view.js';
+import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import {createCardInfoTemplate} from './film-card-info-template.js';
 import {createFilmCardControlsTemplate} from './film-card-controls-template.js';
 
@@ -13,7 +13,7 @@ const createNewPopupTemplate = ({filmInfo, comments, userDetails, isFilmEditing}
     </article>
   `;
 
-export default class FilmCardView extends AbstractView {
+export default class FilmCardView extends AbstractStatefulView {
   constructor(film) {
     super();
     this._state = FilmCardView.parseFilmToState(film);

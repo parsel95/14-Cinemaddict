@@ -109,11 +109,22 @@ const sortFilmsByDate = (filmA, filmB) => {
  */
 const sortFilmsByRating = (filmA, filmB) => filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 
+/** Сортирует фильмы по количеству комментариев
+ * @param {Object} filmA - Первый фильм для сравнения
+ * @param {Object} filmB - Второй фильм для сравнения
+ * @returns {number} Результат сравнения для сортировки
+ *
+ * @example
+ * sortFilmsByComments(filmA, filmB); // возвращает положительное число, отрицательное число или 0
+ */
+const sortFilmsByComments = (filmA, filmB) => filmB.comments.length - filmA.comments.length;
+
 export {
   formatStringToYear,
   formatMinutesToTime,
   formatStringToDate,
   formatStringToDateWithTime,
   sortFilmsByDate,
-  sortFilmsByRating
+  sortFilmsByRating,
+  sortFilmsByComments
 };
