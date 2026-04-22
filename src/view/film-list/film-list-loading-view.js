@@ -1,3 +1,9 @@
+/**
+ * @file film-list-loading-view.js
+ * @description
+ * Файл содержит реализацию класса FilmListLoadingView, который отвечает за отображение состояния загрузки списка фильмов.
+ * Класс наследуется от AbstractView и предоставляет шаблон для отображения секции с классом "films", которая будет содержать заголовок "Loading...".
+ */
 import AbstractView from '../../framework/view/abstract-view';
 
 const createFilmListLoadingViewTemplate = () => (

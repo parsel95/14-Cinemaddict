@@ -1,4 +1,13 @@
 /* eslint-disable indent */
+
+/**
+ * @file film-details-view.js
+ * @description
+ * Файл содержит реализацию класса FilmDetailsView, который отвечает за отображение подробной информации о фильме, его комментариев и формы для добавления нового комментария.
+ * Класс наследуется от AbstractStatefulView и предоставляет шаблон для отображения секции с классом "film-details", которая будет содержать информацию о фильме, его комментарии и форму для добавления нового комментария.
+ * В конструкторе класса принимаются данные о фильме, его комментариях, а также функции для обновления данных и обработки ошибок загрузки комментариев. В зависимости от состояния загрузки комментариев, отображается соответствующее сообщение или список комментариев.
+ */
+
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import {createFilmDetailsInfoTemplate} from './film-details-info-template.js';
 import {createFilmDetailsCommentsTemplate} from './film-details-comments-template.js';

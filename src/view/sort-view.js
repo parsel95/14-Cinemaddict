@@ -1,3 +1,10 @@
+/**
+ * @file sort-view.js
+ * @description
+ * Файл содержит реализацию класса SortView, который отвечает за отображение и обработку сортировки фильмов.
+ * Класс наследуется от AbstractView и предоставляет шаблон для отображения сортировки, а также методы для установки обработчика изменения типа сортировки.
+ */
+
 import AbstractView from '../framework/view/abstract-view.js';
 import {SortType} from '../const.js';
 

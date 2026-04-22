@@ -1,3 +1,9 @@
+/**
+ * @file const.js
+ * @description
+ * Файл содержит константы, используемые в различных частях приложения.
+ */
+
 const FILM_COUNT = 20;
 
 const FILM_COUNT_PER_STEP = 5;

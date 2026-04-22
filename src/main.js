@@ -1,3 +1,19 @@
+/**
+ * @file main.js
+ * @description
+ * Главный модуль инициализации приложения.
+ * Выполняет роль точки входа, в которой создаются экземпляры моделей и презентеров, а также происходит загрузка данных.
+ * @see {@link FilmsPresenter} - презентер для управления списком фильмов и их деталями.
+ * @see {@link FilterPresenter} - презентер для управления фильтрами.
+ * @see {@link HeaderProfilePresenter} - презентер для управления профилем пользователя в шапке сайта.
+ * @see {@link FooterStatisticsPresenter} - презентер для управления статистикой в подвале сайта.
+ * @see {@link FilmsModel} - модель для хранения и управления данными о фильмах.
+ * @see {@link CommentsModel} - модель для хранения и управления данными о комментариях к фильмам.
+ * @see {@link FilterModel} - модель для хранения и управления данными о фильтрах.
+ * @see {@link FilmsApiService} - сервис для взаимодействия с API по фильмам.
+ * @see {@link CommentsApiService} - сервис для взаимодействия с API по комментариям.
+ */
+
 import FilmsPresenter from './presenter/films-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import HeaderProfilePresenter from './presenter/header-profile-presenter';

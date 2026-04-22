@@ -1,3 +1,11 @@
+/**
+ * @file film-card-view.js
+ * @description
+ * Файл содержит реализацию класса FilmCardView, который отвечает за отображение карточки фильма в списке фильмов.
+ * Класс наследуется от AbstractStatefulView и предоставляет шаблон для отображения карточки фильма, которая содержит информацию о фильме, количество комментариев и контролы для управления фильмом (добавление в список "watchlist", отметка как просмотренного и добавление в избранное).
+ * В конструкторе класса принимаются данные о фильме, его комментариях, а также флаг, указывающий на то, что фильм находится в процессе редактирования. На основе этих данных формируется шаблон для отображения карточки фильма.
+ */
+
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import {createCardInfoTemplate} from './film-card-info-template.js';
 import {createFilmCardControlsTemplate} from './film-card-controls-template.js';
