@@ -82,7 +82,11 @@ export default class FilmsModel extends Observable {
         ...film['film_info'],
         alternativeTitle: film['film_info']['alternative_title'],
         totalRating: film['film_info']['total_rating'],
-        ageRating: film['film_info']['age_rating']
+        ageRating: film['film_info']['age_rating'],
+        release: {
+          ...film['film_info']['release'],
+          releaseCountry: film['film_info']['release']['release_country']
+        }
       },
       userDetails: {
         ...film['user_details'],
@@ -96,6 +100,7 @@ export default class FilmsModel extends Observable {
     delete adaptedFilm.filmInfo['alternative_title'];
     delete adaptedFilm.filmInfo['total_rating'];
     delete adaptedFilm.filmInfo['age_rating'];
+    delete adaptedFilm.filmInfo.release['release_country'];
     delete adaptedFilm.userDetails['already_watched'];
     delete adaptedFilm.userDetails['watching_date'];
 
